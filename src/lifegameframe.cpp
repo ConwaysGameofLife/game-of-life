@@ -7,8 +7,8 @@
 
 const wxString TITLE = wxT("Conway's Game of Life");
 
-LifeGameFrame::LifeGameFrame()
-   : wxFrame(NULL, -1, TITLE, wxDefaultPosition, wxSize(800, 600)) {
+LifeGameFrame::LifeGameFrame(int width, int height)
+   : wxFrame(NULL, -1, TITLE, wxDefaultPosition, wxSize(width, height)) {
     Bind(wxEVT_PAINT, &LifeGameFrame::OnPaint, this);
     Bind(wxEVT_CREATE, &LifeGameFrame::OnCreated, this);
     Bind(wxEVT_CLOSE_WINDOW, &LifeGameFrame::OnClose, this);
@@ -21,7 +21,7 @@ void LifeGameFrame::OnCreated(wxWindowCreateEvent& e) {
     auto width = size.GetWidth();
     auto height = size.GetHeight();
 
-    _u = bigBang<CpuLoopUniverse>(width, height);
+    _u = bigBang<CpuAvxUniverse>(width, height);
     _bitmap = std::make_unique<wxBitmap>(width, height, 32);
 }
 

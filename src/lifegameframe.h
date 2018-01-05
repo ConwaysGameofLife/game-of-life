@@ -8,7 +8,7 @@
 
 class LifeGameFrame : public wxFrame {
 public:
-    LifeGameFrame();
+    LifeGameFrame(int width, int height);
 
 private:
     void Draw();
