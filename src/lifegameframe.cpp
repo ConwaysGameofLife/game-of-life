@@ -12,6 +12,8 @@ LifeGameFrame::LifeGameFrame()
     Bind(wxEVT_PAINT, &LifeGameFrame::OnPaint, this);
     Bind(wxEVT_CREATE, &LifeGameFrame::OnCreated, this);
     Bind(wxEVT_CLOSE_WINDOW, &LifeGameFrame::OnClose, this);
+    _timer.SetOwner(this);
+    Bind(wxEVT_TIMER, &LifeGameFrame::Update, this);
 }
 
 void LifeGameFrame::OnCreated(wxWindowCreateEvent& e) {
@@ -21,7 +23,6 @@ void LifeGameFrame::OnCreated(wxWindowCreateEvent& e) {
 
     _u = bigBang<CpuLoopUniverse>(width, height);
     _bitmap = std::make_unique<wxBitmap>(width, height, 32);
-    _timer.callback = std::bind(&LifeGameFrame::Update, this);
 }
 
 void LifeGameFrame::OnClose(wxCloseEvent& e) {
@@ -58,7 +59,7 @@ void LifeGameFrame::Draw() {
     dc.DrawBitmap(*_bitmap, 0, 0);
 }
 
-void LifeGameFrame::Update() {
+void LifeGameFrame::Update(wxTimerEvent& e) {
     _u->next();
     Draw();
 }
