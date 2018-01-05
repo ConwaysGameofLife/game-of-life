@@ -75,8 +75,16 @@ void LifeGamePanel::Draw() {
     }
 
     wxBufferedPaintDC dc(this);
-    dc.SetUserScale(_magnifier, _magnifier);
-    dc.DrawBitmap(*_bitmap, 0, 0);
+    if (_magnifier == 1) {
+        dc.DrawBitmap(*_bitmap, 0, 0);
+    } else {
+        wxMemoryDC tmpDc;
+        tmpDc.SelectObject(*_bitmap);
+        auto dcSize = dc.GetSize();
+        dc.StretchBlit(0, 0, dcSize.GetWidth(), dcSize.GetHeight(),
+                       &tmpDc,
+                       0, 0, ceil(w / _magnifier), ceil(h / _magnifier));
+    }
 }
 
 void LifeGamePanel::Update() {
