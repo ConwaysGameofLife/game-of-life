@@ -14,8 +14,8 @@ private:
     void Draw();
     void Update(wxTimerEvent& e);
     void OnPaint(wxPaintEvent& e);
-    void OnCreated(wxWindowCreateEvent& e);
     void OnClose(wxCloseEvent& e);
+    void OnSizeChanged(wxSizeEvent& e);
     void OnMouseScroll(wxMouseEvent& e);
     void OnMouseMove(wxMouseEvent& e);
     void OnMouseLDown(wxMouseEvent& e);

@@ -11,27 +11,25 @@ const wxString TITLE = wxT("Conway's Game of Life");
 LifeGameFrame::LifeGameFrame(int width, int height)
    : wxFrame(NULL, -1, TITLE, wxDefaultPosition, wxSize(width, height)) {
     Bind(wxEVT_PAINT, &LifeGameFrame::OnPaint, this);
-    Bind(wxEVT_CREATE, &LifeGameFrame::OnCreated, this);
     Bind(wxEVT_CLOSE_WINDOW, &LifeGameFrame::OnClose, this);
+    Bind(wxEVT_SIZE, &LifeGameFrame::OnSizeChanged, this);
     _timer.SetOwner(this);
     Bind(wxEVT_TIMER, &LifeGameFrame::Update, this);
     Bind(wxEVT_MOUSEWHEEL, &LifeGameFrame::OnMouseScroll, this);
     Bind(wxEVT_MOTION, &LifeGameFrame::OnMouseMove, this);
     Bind(wxEVT_LEFT_DOWN, &LifeGameFrame::OnMouseLDown, this);
-}
-
-void LifeGameFrame::OnCreated(wxWindowCreateEvent& e) {
-    auto size = GetClientSize();
-    auto width = size.GetWidth();
-    auto height = size.GetHeight();
 
     _u = bigBang<CpuAvxUniverse>(width, height);
-    _bitmap = std::make_unique<wxBitmap>(width, height, 32);
 }
 
 void LifeGameFrame::OnClose(wxCloseEvent& e) {
     _timer.Stop();
     e.Skip();
+}
+
+void LifeGameFrame::OnSizeChanged(wxSizeEvent& e) {
+    auto size = e.GetSize();
+    _bitmap = std::make_unique<wxBitmap>(size.GetWidth(), size.GetHeight(), 32);
 }
 
 void LifeGameFrame::OnPaint(wxPaintEvent& e) {
@@ -42,26 +40,30 @@ void LifeGameFrame::OnPaint(wxPaintEvent& e) {
 }
 
 void LifeGameFrame::Draw() {
+    assert(_bitmap);
+    assert(_u);
     wxAlphaPixelData pixels(*_bitmap);
     assert(pixels);
 
     auto w = pixels.GetWidth();
     auto h = pixels.GetHeight();
 
-    auto src = _u->render();
+    auto src = _u->render() + _u->width() * _deltaY;
     wxAlphaPixelData::Iterator dst(pixels);
-    for (int y = 0; y < w; ++y) {
-        for (int x = 0; x < h; ++x, ++dst, ++src) {
+    for (int y = 0; y < h; ++y) {
+        auto p = src + _deltaX;
+        for (int x = 0; x < w; ++x, ++dst, ++p) {
             dst.Alpha() = 0xFF;     // TODO: assign alpha only once?
-            dst.Red() = *src;
-            dst.Green() = *src;
-            dst.Blue() = *src;
+            dst.Red() = *p;
+            dst.Green() = *p;
+            dst.Blue() = *p;
         }
+        src += _u->width();
     }
 
     wxBufferedPaintDC dc(this);
     dc.SetUserScale(_magnifier, _magnifier);
-    dc.DrawBitmap(*_bitmap, _deltaX, _deltaY);
+    dc.DrawBitmap(*_bitmap, 0, 0);
 }
 
 void LifeGameFrame::Update(wxTimerEvent& e) {
@@ -79,9 +81,20 @@ void LifeGameFrame::OnMouseScroll(wxMouseEvent& e) {
 
 void LifeGameFrame::OnMouseMove(wxMouseEvent& e) {
     if (e.Dragging()) {
-        _deltaX = wxGetMousePosition().x - _ldown.x;
-        _deltaY = wxGetMousePosition().y - _ldown.y;
-        // TODO: set a limit
+        _deltaX = _ldown.x - wxGetMousePosition().x;
+        if (_deltaX < 0) {
+            _deltaX = 0;
+        }
+        if (_deltaX > _u->width() - _bitmap->GetSize().GetWidth()) {
+            _deltaX = _u->width() - _bitmap->GetSize().GetWidth();
+        }
+        _deltaY = _ldown.y - wxGetMousePosition().y;
+        if (_deltaY < 0) {
+            _deltaY = 0;
+        }
+        if (_deltaY > _u->height() - _bitmap->GetSize().GetHeight()) {
+            _deltaY = _u->height() - _bitmap->GetSize().GetHeight();
+        }
     }
 }
 
