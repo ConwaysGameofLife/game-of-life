@@ -19,9 +19,13 @@ private:
     void OnMouseMove(wxMouseEvent& e);
     void OnMouseLDown(wxMouseEvent& e);
     void OnIdle(wxIdleEvent& e);
+    void OnKeyUp(wxKeyEvent& e);
 
     void ZoomIn();
     void ZoomOut();
+
+    void Regenerate(int width, int height);
+    void TogglePause() { _startUpdate = !_startUpdate; }
 
 private:
     std::unique_ptr<wxBitmap> _bitmap;

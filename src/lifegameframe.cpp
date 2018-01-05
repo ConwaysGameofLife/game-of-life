@@ -17,6 +17,10 @@ LifeGameFrame::LifeGameFrame(int width, int height)
     Bind(wxEVT_LEFT_DOWN, &LifeGameFrame::OnMouseLDown, this);
     Bind(wxEVT_IDLE, &LifeGameFrame::OnIdle, this);
 
+    Regenerate(width, height);
+}
+
+void LifeGameFrame::Regenerate(int width, int height) {
     _u = bigBang<CpuAvxUniverse>(width, height);
 }
 
@@ -79,20 +83,21 @@ void LifeGameFrame::OnMouseScroll(wxMouseEvent& e) {
 
 void LifeGameFrame::OnMouseMove(wxMouseEvent& e) {
     if (e.Dragging()) {
-        _deltaX = _ldown.x - wxGetMousePosition().x;
+        _deltaX += _ldown.x - wxGetMousePosition().x;
         if (_deltaX < 0) {
             _deltaX = 0;
         }
         if (_deltaX > _u->width() - _bitmap->GetSize().GetWidth()) {
             _deltaX = _u->width() - _bitmap->GetSize().GetWidth();
         }
-        _deltaY = _ldown.y - wxGetMousePosition().y;
+        _deltaY += _ldown.y - wxGetMousePosition().y;
         if (_deltaY < 0) {
             _deltaY = 0;
         }
         if (_deltaY > _u->height() - _bitmap->GetSize().GetHeight()) {
             _deltaY = _u->height() - _bitmap->GetSize().GetHeight();
         }
+        _ldown = wxGetMousePosition();
     }
 }
 
@@ -113,4 +118,17 @@ void LifeGameFrame::ZoomOut() {
     if (_magnifier < 1) {
         _magnifier = 1;
     }
+}
+
+void LifeGameFrame::OnKeyUp(wxKeyEvent& e) {
+    switch (e.GetKeyCode()) {
+    case WXK_RETURN:
+        Regenerate(_u->width(), _u->height());
+        std::cerr << "WXK_RETURN" << std::endl;
+        break;
+    case WXK_SPACE:
+        TogglePause();
+        break;
+    }
+    std::cerr << "KEY UP" << std::endl;
 }
