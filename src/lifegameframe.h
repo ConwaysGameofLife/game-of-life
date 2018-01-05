@@ -16,9 +16,14 @@ private:
     void OnPaint(wxPaintEvent& e);
     void OnCreated(wxWindowCreateEvent& e);
     void OnClose(wxCloseEvent& e);
+    void OnMouseScroll(wxMouseEvent& e);
+
+    void ZoomIn();
+    void ZoomOut();
 
 private:
     std::unique_ptr<wxBitmap> _bitmap;
     std::unique_ptr<IUniverse> _u;
     wxTimer _timer;
+    int _magnifier = 1;
 };

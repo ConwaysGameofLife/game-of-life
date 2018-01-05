@@ -4,6 +4,7 @@
 #include <wx/rawbmp.h>
 
 #include <iostream>
+#include <cmath>
 
 const wxString TITLE = wxT("Conway's Game of Life");
 
@@ -14,6 +15,7 @@ LifeGameFrame::LifeGameFrame(int width, int height)
     Bind(wxEVT_CLOSE_WINDOW, &LifeGameFrame::OnClose, this);
     _timer.SetOwner(this);
     Bind(wxEVT_TIMER, &LifeGameFrame::Update, this);
+    Bind(wxEVT_MOUSEWHEEL, &LifeGameFrame::OnMouseScroll, this);
 }
 
 void LifeGameFrame::OnCreated(wxWindowCreateEvent& e) {
@@ -43,11 +45,12 @@ void LifeGameFrame::Draw() {
 
     auto w = pixels.GetWidth();
     auto h = pixels.GetHeight();
+    std::cerr << "W: " << w << ", H: " << h << std::endl;
 
     auto src = _u->render();
     wxAlphaPixelData::Iterator dst(pixels);
-    for (int y = 0; y < pixels.GetHeight(); ++y) {
-        for (int x = 0; x < pixels.GetWidth(); ++x, ++dst, ++src) {
+    for (int y = 0; y < ceil(w / _magnifier); ++y) {
+        for (int x = 0; x < h; ++x, ++dst, ++src) {
             dst.Alpha() = 0xFF;     // TODO: assign alpha only once?
             dst.Red() = *src;
             dst.Green() = *src;
@@ -56,10 +59,37 @@ void LifeGameFrame::Draw() {
     }
 
     wxBufferedPaintDC dc(this);
+    dc.SetUserScale(_magnifier, _magnifier);
     dc.DrawBitmap(*_bitmap, 0, 0);
 }
 
 void LifeGameFrame::Update(wxTimerEvent& e) {
     _u->next();
     Draw();
+}
+
+void LifeGameFrame::OnMouseScroll(wxMouseEvent& e) {
+    _magnifier += (e.GetWheelRotation() > 0 ? 1 : -1);
+    int MAX = 5;
+    if (_magnifier < 1) {
+        _magnifier = 1;
+    } else if (_magnifier > MAX) {
+        _magnifier = MAX;
+    }
+    std::cerr << _magnifier << std::endl;
+}
+
+void LifeGameFrame::ZoomIn() {
+    int MAX = 5;
+    _magnifier += 1;
+    if (_magnifier > MAX) {
+        _magnifier = MAX;
+    }
+}
+
+void LifeGameFrame::ZoomOut() {
+    _magnifier -= 1;
+    if (_magnifier < 1) {
+        _magnifier = 1;
+    }
 }
