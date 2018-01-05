@@ -16,6 +16,8 @@ LifeGameFrame::LifeGameFrame(int width, int height)
     _timer.SetOwner(this);
     Bind(wxEVT_TIMER, &LifeGameFrame::Update, this);
     Bind(wxEVT_MOUSEWHEEL, &LifeGameFrame::OnMouseScroll, this);
+    Bind(wxEVT_MOTION, &LifeGameFrame::OnMouseMove, this);
+    Bind(wxEVT_LEFT_DOWN, &LifeGameFrame::OnMouseLDown, this);
 }
 
 void LifeGameFrame::OnCreated(wxWindowCreateEvent& e) {
@@ -45,11 +47,10 @@ void LifeGameFrame::Draw() {
 
     auto w = pixels.GetWidth();
     auto h = pixels.GetHeight();
-    std::cerr << "W: " << w << ", H: " << h << std::endl;
 
     auto src = _u->render();
     wxAlphaPixelData::Iterator dst(pixels);
-    for (int y = 0; y < ceil(w / _magnifier); ++y) {
+    for (int y = 0; y < w; ++y) {
         for (int x = 0; x < h; ++x, ++dst, ++src) {
             dst.Alpha() = 0xFF;     // TODO: assign alpha only once?
             dst.Red() = *src;
@@ -60,7 +61,7 @@ void LifeGameFrame::Draw() {
 
     wxBufferedPaintDC dc(this);
     dc.SetUserScale(_magnifier, _magnifier);
-    dc.DrawBitmap(*_bitmap, 0, 0);
+    dc.DrawBitmap(*_bitmap, _deltaX, _deltaY);
 }
 
 void LifeGameFrame::Update(wxTimerEvent& e) {
@@ -69,14 +70,23 @@ void LifeGameFrame::Update(wxTimerEvent& e) {
 }
 
 void LifeGameFrame::OnMouseScroll(wxMouseEvent& e) {
-    _magnifier += (e.GetWheelRotation() > 0 ? 1 : -1);
-    int MAX = 5;
-    if (_magnifier < 1) {
-        _magnifier = 1;
-    } else if (_magnifier > MAX) {
-        _magnifier = MAX;
+    if (e.GetWheelRotation() > 0) {
+        ZoomIn();
+    } else {
+        ZoomOut();
     }
-    std::cerr << _magnifier << std::endl;
+}
+
+void LifeGameFrame::OnMouseMove(wxMouseEvent& e) {
+    if (e.Dragging()) {
+        _deltaX = wxGetMousePosition().x - _ldown.x;
+        _deltaY = wxGetMousePosition().y - _ldown.y;
+        // TODO: set a limit
+    }
+}
+
+void LifeGameFrame::OnMouseLDown(wxMouseEvent& e) {
+    _ldown = wxGetMousePosition();
 }
 
 void LifeGameFrame::ZoomIn() {

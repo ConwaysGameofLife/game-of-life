@@ -17,6 +17,8 @@ private:
     void OnCreated(wxWindowCreateEvent& e);
     void OnClose(wxCloseEvent& e);
     void OnMouseScroll(wxMouseEvent& e);
+    void OnMouseMove(wxMouseEvent& e);
+    void OnMouseLDown(wxMouseEvent& e);
 
     void ZoomIn();
     void ZoomOut();
@@ -26,4 +28,7 @@ private:
     std::unique_ptr<IUniverse> _u;
     wxTimer _timer;
     int _magnifier = 1;
+    int _deltaX = 0;
+    int _deltaY = 0;
+    wxPoint _ldown;
 };
