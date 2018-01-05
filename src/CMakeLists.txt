@@ -8,8 +8,8 @@ SET(src
     gameconfig.h
     ivlib.cpp
     ivlib.h
-    lifegameframe.cpp
-    lifegameframe.h
+    lifegamepanel.cpp
+    lifegamepanel.h
     random.h
     screensaver.cpp
     universe.cpp

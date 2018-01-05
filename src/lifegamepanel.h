@@ -6,9 +6,9 @@
 #include <memory>
 #include <functional>
 
-class LifeGameFrame : public wxFrame {
+class LifeGamePanel : public wxPanel {
 public:
-    LifeGameFrame(int width, int height);
+    LifeGamePanel(wxFrame* parent, int width, int height);
 
 private:
     void Draw();
@@ -25,7 +25,7 @@ private:
     void ZoomOut();
 
     void Regenerate(int width, int height);
-    void TogglePause() { _startUpdate = !_startUpdate; }
+    void Toggle();
 
 private:
     std::unique_ptr<wxBitmap> _bitmap;
@@ -34,5 +34,10 @@ private:
     int _deltaX = 0;
     int _deltaY = 0;
     wxPoint _ldown;
-    bool _startUpdate = false;
+
+    enum {
+        PAUSED,
+        STOPPED,
+        RUNNING,
+    } _state = PAUSED;
 };

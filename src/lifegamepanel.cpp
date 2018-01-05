@@ -1,4 +1,4 @@
-#include "lifegameframe.h"
+#include "lifegamepanel.h"
 
 #include <wx/dcbuffer.h>
 #include <wx/rawbmp.h>
@@ -8,40 +8,44 @@
 
 const wxString TITLE = wxT("Conway's Game of Life");
 
-LifeGameFrame::LifeGameFrame(int width, int height)
-   : wxFrame(NULL, -1, TITLE, wxDefaultPosition, wxSize(width, height)) {
-    Bind(wxEVT_PAINT, &LifeGameFrame::OnPaint, this);
-    Bind(wxEVT_SIZE, &LifeGameFrame::OnSizeChanged, this);
-    Bind(wxEVT_MOUSEWHEEL, &LifeGameFrame::OnMouseScroll, this);
-    Bind(wxEVT_MOTION, &LifeGameFrame::OnMouseMove, this);
-    Bind(wxEVT_LEFT_DOWN, &LifeGameFrame::OnMouseLDown, this);
-    Bind(wxEVT_IDLE, &LifeGameFrame::OnIdle, this);
+LifeGamePanel::LifeGamePanel(wxFrame* parent, int width, int height)
+   : wxPanel(parent) {
+    Bind(wxEVT_PAINT, &LifeGamePanel::OnPaint, this);
+    Bind(wxEVT_SIZE, &LifeGamePanel::OnSizeChanged, this);
+    Bind(wxEVT_MOUSEWHEEL, &LifeGamePanel::OnMouseScroll, this);
+    Bind(wxEVT_MOTION, &LifeGamePanel::OnMouseMove, this);
+    Bind(wxEVT_LEFT_DOWN, &LifeGamePanel::OnMouseLDown, this);
+    Bind(wxEVT_IDLE, &LifeGamePanel::OnIdle, this);
+    Bind(wxEVT_KEY_UP, &LifeGamePanel::OnKeyUp, this);
 
     Regenerate(width, height);
 }
 
-void LifeGameFrame::Regenerate(int width, int height) {
+void LifeGamePanel::Regenerate(int width, int height) {
     _u = bigBang<CpuAvxUniverse>(width, height);
+    Refresh();
 }
 
-void LifeGameFrame::OnSizeChanged(wxSizeEvent& e) {
+void LifeGamePanel::OnSizeChanged(wxSizeEvent& e) {
     auto size = e.GetSize();
     _bitmap = std::make_unique<wxBitmap>(size.GetWidth(), size.GetHeight(), 32);
 }
 
-void LifeGameFrame::OnPaint(wxPaintEvent& e) {
+void LifeGamePanel::OnPaint(wxPaintEvent& e) {
     Draw();
-    _startUpdate = true;
+    if (_state == PAUSED) {
+        _state = RUNNING;
+    }
 }
 
-void LifeGameFrame::OnIdle(wxIdleEvent& e) {
-    if (_startUpdate) {
+void LifeGamePanel::OnIdle(wxIdleEvent& e) {
+    if (_state == RUNNING) {
         Update();
         e.RequestMore();
     }
 }
 
-void LifeGameFrame::Draw() {
+void LifeGamePanel::Draw() {
     assert(_bitmap);
     assert(_u);
     wxAlphaPixelData pixels(*_bitmap);
@@ -50,10 +54,10 @@ void LifeGameFrame::Draw() {
     auto w = pixels.GetWidth();
     auto h = pixels.GetHeight();
 
-    auto src = _u->render() + _u->width() * _deltaY;
+    auto src = _u->render() + _u->width() * (_deltaY / _magnifier);
     wxAlphaPixelData::Iterator dst(pixels);
     for (int y = 0; y < h; ++y) {
-        auto p = src + _deltaX;
+        auto p = src + (_deltaX / _magnifier);
         for (int x = 0; x < w; ++x, ++dst, ++p) {
             dst.Alpha() = 0xFF;     // TODO: assign alpha only once?
             dst.Red() = *p;
@@ -68,12 +72,12 @@ void LifeGameFrame::Draw() {
     dc.DrawBitmap(*_bitmap, 0, 0);
 }
 
-void LifeGameFrame::Update() {
+void LifeGamePanel::Update() {
     _u->next();
     Draw();
 }
 
-void LifeGameFrame::OnMouseScroll(wxMouseEvent& e) {
+void LifeGamePanel::OnMouseScroll(wxMouseEvent& e) {
     if (e.GetWheelRotation() > 0) {
         ZoomIn();
     } else {
@@ -81,7 +85,7 @@ void LifeGameFrame::OnMouseScroll(wxMouseEvent& e) {
     }
 }
 
-void LifeGameFrame::OnMouseMove(wxMouseEvent& e) {
+void LifeGamePanel::OnMouseMove(wxMouseEvent& e) {
     if (e.Dragging()) {
         _deltaX += _ldown.x - wxGetMousePosition().x;
         if (_deltaX < 0) {
@@ -101,34 +105,40 @@ void LifeGameFrame::OnMouseMove(wxMouseEvent& e) {
     }
 }
 
-void LifeGameFrame::OnMouseLDown(wxMouseEvent& e) {
+void LifeGamePanel::OnMouseLDown(wxMouseEvent& e) {
     _ldown = wxGetMousePosition();
 }
 
-void LifeGameFrame::ZoomIn() {
-    int MAX = 5;
+void LifeGamePanel::ZoomIn() {
+    int MAX = 10;
     _magnifier += 1;
     if (_magnifier > MAX) {
         _magnifier = MAX;
     }
 }
 
-void LifeGameFrame::ZoomOut() {
+void LifeGamePanel::ZoomOut() {
     _magnifier -= 1;
     if (_magnifier < 1) {
         _magnifier = 1;
     }
 }
 
-void LifeGameFrame::OnKeyUp(wxKeyEvent& e) {
+void LifeGamePanel::OnKeyUp(wxKeyEvent& e) {
     switch (e.GetKeyCode()) {
     case WXK_RETURN:
         Regenerate(_u->width(), _u->height());
-        std::cerr << "WXK_RETURN" << std::endl;
         break;
     case WXK_SPACE:
-        TogglePause();
+        Toggle();
         break;
     }
-    std::cerr << "KEY UP" << std::endl;
+}
+
+void LifeGamePanel::Toggle() {
+    if (_state == STOPPED) {
+        _state = RUNNING;
+    } else {
+        _state = STOPPED;
+    }
 }
