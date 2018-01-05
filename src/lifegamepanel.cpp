@@ -29,6 +29,12 @@ void LifeGamePanel::Regenerate(int width, int height) {
 void LifeGamePanel::OnSizeChanged(wxSizeEvent& e) {
     auto size = e.GetSize();
     _bitmap = std::make_unique<wxBitmap>(size.GetWidth(), size.GetHeight(), 32);
+    wxAlphaPixelData pixels(*_bitmap);
+    assert(pixels);
+    auto iter = pixels.GetPixels();
+    for (int i = 0; i < size.GetWidth() * size.GetHeight(); ++i, ++iter) {
+        iter.Alpha() = 0xFF;
+    }
 }
 
 void LifeGamePanel::OnPaint(wxPaintEvent& e) {
@@ -55,12 +61,11 @@ void LifeGamePanel::Draw() {
     auto h = pixels.GetHeight();
 
     auto src = _u->render() + _u->width() * (_deltaY / _magnifier);
-    wxAlphaPixelData::Iterator dst(pixels);
+    auto dst = pixels.GetPixels();
     for (int y = 0; y < ceil(h / _magnifier); ++y) {
         auto psr = src + (_deltaX / _magnifier);
         auto dsr = dst;
         for (int x = 0; x < ceil(w / _magnifier); ++x, ++dsr, ++psr) {
-            dsr.Alpha() = 0xFF;     // TODO: assign alpha only once?
             dsr.Red() = *psr;
             dsr.Green() = *psr;
             dsr.Blue() = *psr;
