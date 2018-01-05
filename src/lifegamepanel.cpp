@@ -56,15 +56,17 @@ void LifeGamePanel::Draw() {
 
     auto src = _u->render() + _u->width() * (_deltaY / _magnifier);
     wxAlphaPixelData::Iterator dst(pixels);
-    for (int y = 0; y < h; ++y) {
-        auto p = src + (_deltaX / _magnifier);
-        for (int x = 0; x < w; ++x, ++dst, ++p) {
-            dst.Alpha() = 0xFF;     // TODO: assign alpha only once?
-            dst.Red() = *p;
-            dst.Green() = *p;
-            dst.Blue() = *p;
+    for (int y = 0; y < ceil(h / _magnifier); ++y) {
+        auto psr = src + (_deltaX / _magnifier);
+        auto dsr = dst;
+        for (int x = 0; x < ceil(w / _magnifier); ++x, ++dsr, ++psr) {
+            dsr.Alpha() = 0xFF;     // TODO: assign alpha only once?
+            dsr.Red() = *psr;
+            dsr.Green() = *psr;
+            dsr.Blue() = *psr;
         }
         src += _u->width();
+        dst.OffsetY(pixels, 1);
     }
 
     wxBufferedPaintDC dc(this);
