@@ -11,20 +11,13 @@ const wxString TITLE = wxT("Conway's Game of Life");
 LifeGameFrame::LifeGameFrame(int width, int height)
    : wxFrame(NULL, -1, TITLE, wxDefaultPosition, wxSize(width, height)) {
     Bind(wxEVT_PAINT, &LifeGameFrame::OnPaint, this);
-    Bind(wxEVT_CLOSE_WINDOW, &LifeGameFrame::OnClose, this);
     Bind(wxEVT_SIZE, &LifeGameFrame::OnSizeChanged, this);
-    _timer.SetOwner(this);
-    Bind(wxEVT_TIMER, &LifeGameFrame::Update, this);
     Bind(wxEVT_MOUSEWHEEL, &LifeGameFrame::OnMouseScroll, this);
     Bind(wxEVT_MOTION, &LifeGameFrame::OnMouseMove, this);
     Bind(wxEVT_LEFT_DOWN, &LifeGameFrame::OnMouseLDown, this);
+    Bind(wxEVT_IDLE, &LifeGameFrame::OnIdle, this);
 
     _u = bigBang<CpuAvxUniverse>(width, height);
-}
-
-void LifeGameFrame::OnClose(wxCloseEvent& e) {
-    _timer.Stop();
-    e.Skip();
 }
 
 void LifeGameFrame::OnSizeChanged(wxSizeEvent& e) {
@@ -34,8 +27,13 @@ void LifeGameFrame::OnSizeChanged(wxSizeEvent& e) {
 
 void LifeGameFrame::OnPaint(wxPaintEvent& e) {
     Draw();
-    if (!_timer.IsRunning()) {
-        _timer.Start(50);
+    _startUpdate = true;
+}
+
+void LifeGameFrame::OnIdle(wxIdleEvent& e) {
+    if (_startUpdate) {
+        Update();
+        e.RequestMore();
     }
 }
 
@@ -66,7 +64,7 @@ void LifeGameFrame::Draw() {
     dc.DrawBitmap(*_bitmap, 0, 0);
 }
 
-void LifeGameFrame::Update(wxTimerEvent& e) {
+void LifeGameFrame::Update() {
     _u->next();
     Draw();
 }

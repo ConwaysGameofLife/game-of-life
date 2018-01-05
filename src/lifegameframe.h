@@ -12,13 +12,13 @@ public:
 
 private:
     void Draw();
-    void Update(wxTimerEvent& e);
+    void Update();
     void OnPaint(wxPaintEvent& e);
-    void OnClose(wxCloseEvent& e);
     void OnSizeChanged(wxSizeEvent& e);
     void OnMouseScroll(wxMouseEvent& e);
     void OnMouseMove(wxMouseEvent& e);
     void OnMouseLDown(wxMouseEvent& e);
+    void OnIdle(wxIdleEvent& e);
 
     void ZoomIn();
     void ZoomOut();
@@ -26,9 +26,9 @@ private:
 private:
     std::unique_ptr<wxBitmap> _bitmap;
     std::unique_ptr<IUniverse> _u;
-    wxTimer _timer;
     int _magnifier = 1;
     int _deltaX = 0;
     int _deltaY = 0;
     wxPoint _ldown;
+    bool _startUpdate = false;
 };
