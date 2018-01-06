@@ -60,10 +60,10 @@ void LifeGamePanel::Draw() {
     auto w = pixels.GetWidth();
     auto h = pixels.GetHeight();
 
-    auto src = _u->render() + _u->width() * (_deltaY / _magnifier);
+    auto src = _u->render() + _u->width() * (_delta.y / _magnifier);
     auto dst = pixels.GetPixels();
     for (int y = 0; y < ceil(h / _magnifier); ++y) {
-        auto psr = src + (_deltaX / _magnifier);
+        auto psr = src + (_delta.x / _magnifier);
         auto dsr = dst;
         for (int x = 0; x < ceil(w / _magnifier); ++x, ++dsr, ++psr) {
             dsr.Red() = *psr;
@@ -102,19 +102,18 @@ void LifeGamePanel::OnMouseScroll(wxMouseEvent& e) {
 
 void LifeGamePanel::OnMouseMove(wxMouseEvent& e) {
     if (e.Dragging()) {
-        _deltaX += _ldown.x - wxGetMousePosition().x;
-        if (_deltaX < 0) {
-            _deltaX = 0;
+        _delta += _ldown - wxGetMousePosition();
+        if (_delta.x < 0) {
+            _delta.x = 0;
         }
-        if (_deltaX > _u->width() - _bitmap->GetSize().GetWidth()) {
-            _deltaX = _u->width() - _bitmap->GetSize().GetWidth();
+        if (_delta.x > _u->width() - _bitmap->GetSize().GetWidth()) {
+            _delta.x = _u->width() - _bitmap->GetSize().GetWidth();
         }
-        _deltaY += _ldown.y - wxGetMousePosition().y;
-        if (_deltaY < 0) {
-            _deltaY = 0;
+        if (_delta.y < 0) {
+            _delta.y = 0;
         }
-        if (_deltaY > _u->height() - _bitmap->GetSize().GetHeight()) {
-            _deltaY = _u->height() - _bitmap->GetSize().GetHeight();
+        if (_delta.y > _u->height() - _bitmap->GetSize().GetHeight()) {
+            _delta.y = _u->height() - _bitmap->GetSize().GetHeight();
         }
         _ldown = wxGetMousePosition();
     }

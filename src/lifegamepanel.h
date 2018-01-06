@@ -31,8 +31,7 @@ private:
     std::unique_ptr<wxBitmap> _bitmap;
     std::unique_ptr<IUniverse> _u;
     int _magnifier = 1;
-    int _deltaX = 0;
-    int _deltaY = 0;
+    wxPoint _delta;
     wxPoint _ldown;
 
     enum {
