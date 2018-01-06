@@ -20,5 +20,7 @@ SET(src
     vax.h
 )
 
+configure_file(glider.png glider.png COPYONLY)
+
 ADD_EXECUTABLE(${PROJECT_NAME} ${src})
 target_link_libraries(${PROJECT_NAME} ${wxWidgets_LIBRARIES})
