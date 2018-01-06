@@ -2,13 +2,14 @@
 
 #include <wx/wx.h>
 
-class LifeGameScreenSaverApp : public wxApp {
+const auto APP_TITLE = wxT("Conway's Game of Life");
+
+class LifeGameApp : public wxApp {
 public:
     bool OnInit() override {
         int width = wxSystemSettings::GetMetric(wxSYS_SCREEN_X);
         int height = wxSystemSettings::GetMetric(wxSYS_SCREEN_Y);
-        auto* frame = new wxFrame(nullptr, -1,
-                                  wxT("Conway's Game of Life Screensaver"),
+        auto* frame = new wxFrame(nullptr, -1, APP_TITLE,
                                   wxPoint(0, 0), wxSize(width, height));
         frame->Center();
         auto* panel = new LifeGamePanel(frame, width, height);
@@ -21,4 +22,4 @@ public:
     }
 };
 
-IMPLEMENT_APP(LifeGameScreenSaverApp)
+IMPLEMENT_APP(LifeGameApp)

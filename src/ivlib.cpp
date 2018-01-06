@@ -23,7 +23,7 @@ void *aligned_malloc_impl(int size, int alignment) {
 void aligned_free(void *ptr) {
   if (!ptr)
     return;
-  void *origin = static_cast<void **>(ptr)[-1];
+  auto origin = static_cast<uint8_t*>(static_cast<void **>(ptr)[-1]);
   delete origin;
 }
 

@@ -1,17 +1,17 @@
-PROJECT(LifeGameScreenSaver)
+PROJECT(gameoflife)
 
 find_package(wxWidgets REQUIRED COMPONENTS core base)
 
 include(${wxWidgets_USE_FILE})
 
 SET(src
+    app.cpp
     gameconfig.h
     ivlib.cpp
     ivlib.h
     lifegamepanel.cpp
     lifegamepanel.h
     random.h
-    screensaver.cpp
     universe.cpp
     universe.h
     vax.cpp
