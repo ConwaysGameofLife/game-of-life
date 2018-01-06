@@ -1,1 +1,1 @@
-# Conway's Game of Life Screensaver
+# Conway's Game of Life
