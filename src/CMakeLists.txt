@@ -6,6 +6,8 @@ include(${wxWidgets_USE_FILE})
 
 SET(src
     app.cpp
+    config.cpp
+    config.h
     gameconfig.h
     ivlib.cpp
     ivlib.h
