@@ -1,5 +1,7 @@
 #include "config.h"
 
+#include <wx/gbsizer.h>
+
 const wxString ConfigDialog::TITLE = wxT("Configuration");
 
 ConfigDialog::ConfigDialog()
@@ -8,32 +10,35 @@ ConfigDialog::ConfigDialog()
     auto panel = new wxPanel(this, wxID_ANY);
     auto vbox = new wxBoxSizer(wxVERTICAL);
 
-    auto hboxSize = new wxBoxSizer(wxHORIZONTAL);
-    hboxSize->Add(new wxStaticText(panel, wxID_ANY, wxT("Width")), 0, wxALIGN_CENTER);
-    hboxSize->Add(new wxTextCtrl(panel, wxID_ANY), 0, wxALIGN_CENTER | wxLEFT, 5);
-    hboxSize->Add(new wxStaticText(panel, wxID_ANY, wxT("Height")), 0, wxALIGN_CENTER | wxLEFT, 10);
-    hboxSize->Add(new wxTextCtrl(panel, wxID_ANY), 0, wxALIGN_CENTER | wxLEFT, 5);
-    vbox->Add(hboxSize, 0, wxALL, 10);
+    auto grid = new wxGridBagSizer(9, 25);
 
-    auto hboxSeed = new wxBoxSizer(wxHORIZONTAL);
-    hboxSeed->Add(new wxStaticText(panel, wxID_ANY, wxT("Seed")), 0, wxALIGN_CENTER);
-    hboxSeed->Add(new wxTextCtrl(panel, wxID_ANY), 0, wxALIGN_CENTER | wxLEFT, 5);
-    vbox->Add(hboxSeed, 0, wxALL, 10);
+    int r = 0;
+    grid->Add(new wxStaticText(panel, wxID_ANY, wxT("Width")), {r, 0}, wxDefaultSpan, 0, wxALIGN_LEFT);
+    grid->Add(new wxTextCtrl(panel, wxID_ANY), {r, 1}, wxDefaultSpan, wxALIGN_LEFT | wxLEFT, 5);
+    grid->Add(new wxStaticText(panel, wxID_ANY, wxT("Height")), {r, 2}, wxDefaultSpan, wxALIGN_LEFT | wxLEFT, 10);
+    grid->Add(new wxTextCtrl(panel, wxID_ANY), {r, 3}, wxDefaultSpan, wxALIGN_LEFT | wxLEFT, 5);
 
-    auto hboxSpeed = new wxBoxSizer(wxHORIZONTAL);
-    hboxSpeed->Add(new wxStaticText(panel, wxID_ANY, wxT("Generation per second")), 0, wxALIGN_CENTER);
-    hboxSpeed->Add(new wxTextCtrl(panel, wxID_ANY), 0, wxALIGN_CENTER | wxLEFT, 5);
-    vbox->Add(hboxSpeed, 0, wxALL, 10);
+    ++r;
+    grid->Add(new wxStaticText(panel, wxID_ANY, wxT("Seed")), {r, 0}, wxDefaultSpan, wxALIGN_LEFT);
+    grid->Add(new wxTextCtrl(panel, wxID_ANY), {r, 1}, {1, 3}, wxEXPAND | wxALIGN_LEFT | wxLEFT, 5);
 
-    auto vboxSwitch = new wxBoxSizer(wxVERTICAL);
-    vboxSwitch->Add(new wxCheckBox(panel, wxID_ANY, wxT("Mouse control")), 0, wxALIGN_LEFT);
-    vboxSwitch->Add(new wxCheckBox(panel, wxID_ANY, wxT("Color cell by age")), 0, wxALIGN_LEFT);
-    vbox->Add(vboxSwitch, 0, wxALL, 10);
+    ++r;
+    grid->Add(new wxStaticText(panel, wxID_ANY, wxT("Generation per second")), {r, 0}, wxDefaultSpan, wxALIGN_LEFT);
+    grid->Add(new wxTextCtrl(panel, wxID_ANY), {r, 1}, {1, 3}, wxEXPAND | wxALIGN_LEFT | wxLEFT, 5);
 
-    auto hboxAlg = new wxBoxSizer(wxHORIZONTAL);
-    hboxAlg->Add(new wxStaticText(panel, wxID_ANY, wxT("Algorithm")), 0, wxALIGN_CENTER);
-    hboxAlg->Add(new wxComboBox(panel, wxID_ANY), 0, wxALIGN_CENTER | wxLEFT, 5);
-    vbox->Add(hboxAlg, 0, wxALL, 10);
+    ++r;
+    grid->Add(new wxCheckBox(panel, wxID_ANY, wxT("Mouse control")), {r, 0}, {1, 2}, wxALIGN_LEFT);
+    grid->Add(new wxCheckBox(panel, wxID_ANY, wxT("Color cell by age")), {r, 2}, {1, 2}, wxALIGN_LEFT);
+
+    ++r;
+    grid->Add(new wxStaticText(panel, wxID_ANY, wxT("Number of swarms")), {r, 0}, wxDefaultSpan, wxALIGN_LEFT);
+    grid->Add(new wxTextCtrl(panel, wxID_ANY), {r, 1}, {1, 3}, wxEXPAND | wxALIGN_LEFT | wxLEFT, 5);
+
+    ++r;
+    grid->Add(new wxStaticText(panel, wxID_ANY, wxT("Algorithm")), {r, 0}, wxDefaultSpan, wxALIGN_LEFT);
+    grid->Add(new wxComboBox(panel, wxID_ANY, wxT("CPU AVX256 Single-Threaded")), {r, 1}, {1, 3}, wxEXPAND | wxALIGN_LEFT | wxLEFT, 5);
+
+    vbox->Add(grid, 0, wxALL, 10);
 
     auto hboxConfirmBtn = new wxBoxSizer(wxHORIZONTAL);
     auto okButton = new wxButton(panel, wxID_OK, wxT("Ok"), wxDefaultPosition, wxSize(70, 30));
