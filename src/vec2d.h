@@ -26,6 +26,7 @@ public:
     size_t getIncrement() const { return sizeof(T); }
 
     T* data() { return _data.get(); }
+    const T* data() const { return _data.get(); }
 
     void setValue(int x, int y, T value) {
         assert(x < _w);
@@ -54,4 +55,11 @@ private:
     std::unique_ptr<T[]> _data;
     int _w = 0;
     int _h = 0;
+
+    friend void swap(Vec2d& lhs, Vec2d& rhs) {
+        using std::swap;
+        swap(lhs._data, rhs._data);
+        swap(lhs._w, rhs._w);
+        swap(lhs._h, rhs._w);
+    }
 };

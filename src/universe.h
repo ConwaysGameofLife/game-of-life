@@ -39,14 +39,13 @@ class AbstractCpuUniverse : public IUniverse {
 public:
   AbstractCpuUniverse();
   AbstractCpuUniverse(int width, int height);
-  AbstractCpuUniverse(AbstractCpuUniverse &&u);
-  AbstractCpuUniverse &operator=(AbstractCpuUniverse &&u);
+  AbstractCpuUniverse &operator=(AbstractCpuUniverse &&rhs);
 
   ~AbstractCpuUniverse() override;
 
   int size() const final;
 
-  const uint8_t* render() const final { return texture(); }
+  const uint8_t* render() const final;
 
   void next() final;
 
@@ -58,7 +57,6 @@ public:
 protected:
   virtual void next(Vec2d &src, Vec2d &dst) const = 0;
 
-  const uint8_t* texture() const;
   void nextLoop(Vec2d &src, Vec2d &dst) const;
   void nextLoopOmp(Vec2d &src, Vec2d &dst) const;
   void nextIpp(Vec2d &src, Vec2d &dst) const;
@@ -69,8 +67,15 @@ protected:
   void next(uint8_t *src, int srcStride, uint8_t *dest, int destStride,
             const std::pair<int, int> &roi) const;
 
-  struct Data;
-  std::unique_ptr<Data> d;
+  void init(Vec2d &c, int width, int height) const;
+  Vec2d &src();
+  const Vec2d &src() const;
+  Vec2d &dst();
+  const Vec2d &dst() const;
+  void flip();
+
+  int current_ = 0;
+  Vec2d channels_[2];
 };
 
 class CpuLoopUniverse : public AbstractCpuUniverse {

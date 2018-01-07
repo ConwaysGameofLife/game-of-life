@@ -18,61 +18,63 @@ using namespace std;
 using namespace tbb;
 #endif // USE_TBB
 
-struct AbstractCpuUniverse::Data {
-  ~Data() {}
-
-  Vec2d channels_[2];
-
-  Vec2d &src() {
-    assert(current_ < sizeof(channels_) / sizeof(channels_[0]));
-    return channels_[current_];
-  }
-
-  Vec2d &dst() {
-    assert(current_ < sizeof(channels_) / sizeof(channels_[0]));
-    return channels_[1 - current_];
-  }
-
-  void flip() { current_ = (current_ + 1) % 2; }
-
-  void init(Vec2d &c, int width, int height) const {
-    c = Vec2d(width, height);
-
-    auto dest = c.data();
-    fill(dest, dest + c.getRowBytes() * c.height(), 0x00);
-  }
-
-private:
-  int current_ = 0;
-};
-
-AbstractCpuUniverse::AbstractCpuUniverse() : d(make_unique<Data>()) {}
+AbstractCpuUniverse::AbstractCpuUniverse() {}
 
 AbstractCpuUniverse::AbstractCpuUniverse(int width, int height)
     : AbstractCpuUniverse() {
-  d->init(d->channels_[0], width, height);
-  d->init(d->channels_[1], width, height);
+  init(channels_[0], width, height);
+  init(channels_[1], width, height);
 }
 
-AbstractCpuUniverse::AbstractCpuUniverse(AbstractCpuUniverse &&u)
-    : d(move(u.d)) {}
-
-AbstractCpuUniverse &AbstractCpuUniverse::operator=(AbstractCpuUniverse &&u) {
-  swap(d, u.d);
+AbstractCpuUniverse &AbstractCpuUniverse::operator=(AbstractCpuUniverse &&rhs) {
+  using std::swap;
+  swap(current_, rhs.current_);
+  for (size_t i = 0; i < sizeof(channels_) / sizeof(channels_[0]); ++i) {
+      swap(channels_[i], rhs.channels_[i]);
+  }
   return *this;
 }
 
 AbstractCpuUniverse::~AbstractCpuUniverse() {}
 
+Vec2d& AbstractCpuUniverse::src() {
+    assert(current_ < sizeof(channels_) / sizeof(channels_[0]));
+    return channels_[current_];
+}
+
+void AbstractCpuUniverse::init(Vec2d &c, int width, int height) const {
+  c = Vec2d(width, height);
+
+  auto dest = c.data();
+  fill(dest, dest + c.getRowBytes() * c.height(), 0x00);
+}
+
+const Vec2d& AbstractCpuUniverse::src() const {
+    assert(current_ < sizeof(channels_) / sizeof(channels_[0]));
+    return channels_[current_];
+}
+
+Vec2d& AbstractCpuUniverse::dst() {
+    assert(current_ < sizeof(channels_) / sizeof(channels_[0]));
+    return channels_[1 - current_];
+}
+
+const Vec2d& AbstractCpuUniverse::dst() const {
+    assert(current_ < sizeof(channels_) / sizeof(channels_[0]));
+    return channels_[1 - current_];
+}
+
+void AbstractCpuUniverse::flip() { current_ = (current_ + 1) % 2; }
+
 int AbstractCpuUniverse::size() const { return width() * height(); }
 
-const uint8_t* AbstractCpuUniverse::texture() const {
-  return d->src().data();
+const uint8_t* AbstractCpuUniverse::render() const {
+  return src().data();
 }
 
 void AbstractCpuUniverse::next() {
-  next(d->src(), d->dst());
-  d->flip();
+  next(src(), dst());
+  flip();
 }
 
 void AbstractCpuUniverse::nextLoop(Vec2d &src, Vec2d &dst) const {
@@ -411,12 +413,12 @@ void AbstractCpuUniverse::next(uint8_t *src, int srcStride,
   ippsFree(temp);
 }
 
-int AbstractCpuUniverse::width() const { return d->src().width(); }
+int AbstractCpuUniverse::width() const { return src().width(); }
 
-int AbstractCpuUniverse::height() const { return d->src().height(); }
+int AbstractCpuUniverse::height() const { return src().height(); }
 
 void AbstractCpuUniverse::add(int x, int y) {
   assert(x < width() && x >= 0);
   assert(y < height() && y >= 0);
-  d->src().setValue(x, y, ALIVE_COLOR);
+  src().setValue(x, y, ALIVE_COLOR);
 }
