@@ -1,6 +1,15 @@
 PROJECT(liblife)
 
 SET(src
+    bigbang.cpp
+    bigbang.h
+    cpuavxompuniverse.cpp
+    cpuavxuniverse.cpp
+    cpuippompuniverse.cpp
+    cpuipptbb.cpp
+    cpuippuniverse.cpp
+    cpuomploopuniverse.cpp
+    cpusinglethreadedloop.cpp
     gameconfig.h
     ivlib.cpp
     ivlib.h

@@ -24,7 +24,7 @@ LifeGamePanel::LifeGamePanel(wxFrame* parent, int width, int height)
 }
 
 void LifeGamePanel::Regenerate(int width, int height) {
-    _u = bigBang<CpuAvxUniverse>(width, height);
+    _u = BigBang::create("CpuAvxUniverse", width, height);
     Refresh();
 }
 
