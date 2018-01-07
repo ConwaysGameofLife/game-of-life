@@ -21,22 +21,22 @@ using namespace tbb;
 struct AbstractCpuUniverse::Data {
   ~Data() {}
 
-  Channel channels_[2];
+  Vec2d channels_[2];
 
-  Channel &src() {
+  Vec2d &src() {
     assert(current_ < sizeof(channels_) / sizeof(channels_[0]));
     return channels_[current_];
   }
 
-  Channel &dst() {
+  Vec2d &dst() {
     assert(current_ < sizeof(channels_) / sizeof(channels_[0]));
     return channels_[1 - current_];
   }
 
   void flip() { current_ = (current_ + 1) % 2; }
 
-  void init(Channel &c, int width, int height) const {
-    c = Channel(width, height);
+  void init(Vec2d &c, int width, int height) const {
+    c = Vec2d(width, height);
 
     auto dest = c.data();
     fill(dest, dest + c.getRowBytes() * c.height(), 0x00);
@@ -75,7 +75,7 @@ void AbstractCpuUniverse::next() {
   d->flip();
 }
 
-void AbstractCpuUniverse::nextLoop(Channel &src, Channel &dst) const {
+void AbstractCpuUniverse::nextLoop(Vec2d &src, Vec2d &dst) const {
   assert(src.width() == dst.width());
   assert(src.height() == dst.height());
 
@@ -128,8 +128,8 @@ void AbstractCpuUniverse::nextLoop(Channel &src, Channel &dst) const {
   }
 }
 
-void AbstractCpuUniverse::nextLoopOmp(Channel &src,
-                                      Channel &dst) const {
+void AbstractCpuUniverse::nextLoopOmp(Vec2d &src,
+                                      Vec2d &dst) const {
   auto pSrcData = src.data();
   auto cbSrcRow = src.getRowBytes();
   auto cbSrcInc = src.getIncrement();
@@ -172,7 +172,7 @@ void AbstractCpuUniverse::nextLoopOmp(Channel &src,
   }
 }
 
-void AbstractCpuUniverse::nextIpp(Channel &src, Channel &dst) const {
+void AbstractCpuUniverse::nextIpp(Vec2d &src, Vec2d &dst) const {
   auto pSrcData = src.data();
   auto cbSrcRow = src.getRowBytes();
   auto cbSrcInc = src.getIncrement();
@@ -204,7 +204,7 @@ void AbstractCpuUniverse::nextIpp(Channel &src, Channel &dst) const {
   }
 }
 
-void AbstractCpuUniverse::nextIppOmp(Channel &src, Channel &dst) const {
+void AbstractCpuUniverse::nextIppOmp(Vec2d &src, Vec2d &dst) const {
   auto pSrcData = src.data();
   auto cbSrcRow = src.getRowBytes();
   auto cbSrcInc = src.getIncrement();
@@ -237,7 +237,7 @@ void AbstractCpuUniverse::nextIppOmp(Channel &src, Channel &dst) const {
   }
 }
 
-void AbstractCpuUniverse::nextIppTbb(Channel &src, Channel &dst) const {
+void AbstractCpuUniverse::nextIppTbb(Vec2d &src, Vec2d &dst) const {
 #if defined USE_TBB
   auto pSrcData = src.data();
   auto cbSrcRow = src.getRowBytes();
@@ -279,7 +279,7 @@ void AbstractCpuUniverse::nextIppTbb(Channel &src, Channel &dst) const {
 #endif // USE_TBB
 }
 
-void CpuAvxUniverse::next(Channel &src, Channel &dst) const {
+void CpuAvxUniverse::next(Vec2d &src, Vec2d &dst) const {
   next(src.width(), src.height(), src.data(), src.getRowBytes(),
        src.getIncrement(), dst.data(), dst.getRowBytes(),
        dst.getIncrement());
@@ -325,7 +325,7 @@ void CpuAvxUniverse::next(int width, int height, uint8_t *src, int srcStride,
   }
 }
 
-void AbstractCpuUniverse::nextAvxOmp(Channel &src, Channel &dst) const {
+void AbstractCpuUniverse::nextAvxOmp(Vec2d &src, Vec2d &dst) const {
   const int width = src.width();
   const int height = src.height();
 

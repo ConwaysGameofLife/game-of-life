@@ -35,13 +35,13 @@ template <typename T> std::unique_ptr<T> bigBang(int width, int height) {
   return u;
 }
 
-class Channel {
+class Vec2d {
     using T = uint8_t;
 public:
-    Channel() {}
-    Channel(int width, int height) : _w(width), _h(height) { init(); }
+    Vec2d() {}
+    Vec2d(int width, int height) : _w(width), _h(height) { init(); }
 
-    Channel& operator=(Channel&& c) {
+    Vec2d& operator=(Vec2d&& c) {
         _w = c.width();
         _h = c.height();
         _data.reset(c._data.release());
@@ -107,16 +107,16 @@ public:
   int height() const final;
 
 protected:
-  virtual void next(Channel &src, Channel &dst) const = 0;
+  virtual void next(Vec2d &src, Vec2d &dst) const = 0;
 
   const uint8_t* texture() const;
-  void nextLoop(Channel &src, Channel &dst) const;
-  void nextLoopOmp(Channel &src, Channel &dst) const;
-  void nextIpp(Channel &src, Channel &dst) const;
-  void nextIppTbb(Channel &src, Channel &dst) const;
-  void nextIppOmp(Channel &src, Channel &dst) const;
-  void nextAvx(Channel &src, Channel &dst) const;
-  void nextAvxOmp(Channel &src, Channel &dst) const;
+  void nextLoop(Vec2d &src, Vec2d &dst) const;
+  void nextLoopOmp(Vec2d &src, Vec2d &dst) const;
+  void nextIpp(Vec2d &src, Vec2d &dst) const;
+  void nextIppTbb(Vec2d &src, Vec2d &dst) const;
+  void nextIppOmp(Vec2d &src, Vec2d &dst) const;
+  void nextAvx(Vec2d &src, Vec2d &dst) const;
+  void nextAvxOmp(Vec2d &src, Vec2d &dst) const;
   void next(uint8_t *src, int srcStride, uint8_t *dest, int destStride,
             const std::pair<int, int> &roi) const;
 
@@ -131,7 +131,7 @@ public:
   std::string name() const { return "CPU Loop"; }
 
 protected:
-  void next(Channel &src, Channel &dst) const final {
+  void next(Vec2d &src, Vec2d &dst) const final {
     nextLoop(src, dst);
   }
 };
@@ -144,7 +144,7 @@ public:
   std::string name() const { return "CPU Loop with OpenMP"; }
 
 protected:
-  void next(Channel &src, Channel &dst) const final {
+  void next(Vec2d &src, Vec2d &dst) const final {
     nextLoopOmp(src, dst);
   }
 };
@@ -156,7 +156,7 @@ public:
   std::string name() const { return "CPU IPP"; }
 
 protected:
-  void next(Channel &src, Channel &dst) const final {
+  void next(Vec2d &src, Vec2d &dst) const final {
     nextIpp(src, dst);
   }
 };
@@ -169,7 +169,7 @@ public:
   std::string name() const { return "CPU IPP with OpenMP"; }
 
 protected:
-  void next(Channel &src, Channel &dst) const final {
+  void next(Vec2d &src, Vec2d &dst) const final {
     nextIppOmp(src, dst);
   }
 };
@@ -182,7 +182,7 @@ public:
   std::string name() const { return "CPU IPP with TBB"; }
 
 protected:
-  void next(Channel &src, Channel &dst) const final {
+  void next(Vec2d &src, Vec2d &dst) const final {
     nextIppTbb(src, dst);
   }
 };
@@ -200,7 +200,7 @@ public:
 	  uint8_t *dst, int dstStride, int dstInc) const;
 
 protected:
-  void next(Channel &src, Channel &dst) const final;
+  void next(Vec2d &src, Vec2d &dst) const final;
 
 private:
   uint8_t *sum;
@@ -214,7 +214,7 @@ public:
   std::string name() const { return "CPU AVX OpenMP"; }
 
 protected:
-  void next(Channel &src, Channel &dst) const final {
+  void next(Vec2d &src, Vec2d &dst) const final {
     nextAvxOmp(src, dst);
   }
 };
