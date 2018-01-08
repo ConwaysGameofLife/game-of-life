@@ -1,6 +1,6 @@
 #pragma once
 
-#include "universe.h"
+#include <liblife/bigbang.h>
 
 #include <wx/wx.h>
 #include <memory>

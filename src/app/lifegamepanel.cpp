@@ -1,5 +1,7 @@
 #include "lifegamepanel.h"
 
+#include "config.h"
+
 #include <wx/dcbuffer.h>
 #include <wx/rawbmp.h>
 
@@ -22,7 +24,7 @@ LifeGamePanel::LifeGamePanel(wxFrame* parent, int width, int height)
 }
 
 void LifeGamePanel::Regenerate(int width, int height) {
-    _u = bigBang<CpuAvxUniverse>(width, height);
+    _u = BigBang::create("CpuAvxUniverse", width, height);
     Refresh();
 }
 
@@ -141,6 +143,7 @@ void LifeGamePanel::ZoomOut() {
 void LifeGamePanel::OnKeyUp(wxKeyEvent& e) {
     switch (e.GetKeyCode()) {
     case WXK_RETURN:
+    case WXK_NUMPAD_ENTER:
         Regenerate(_u->width(), _u->height());
         break;
     case WXK_SPACE:
@@ -154,5 +157,9 @@ void LifeGamePanel::Toggle() {
         _state = RUNNING;
     } else {
         _state = STOPPED;
+        ConfigDialog config;
+        if (config.ShowModal() != wxID_OK) {
+        }
+        _state = RUNNING;
     }
 }
