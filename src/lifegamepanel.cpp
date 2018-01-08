@@ -74,7 +74,7 @@ void LifeGamePanel::Draw() {
         dst.OffsetY(pixels, 1);
     }
 
-    wxBufferedPaintDC dc(this);
+    wxClientDC dc(this);
     if (_magnifier == 1) {
         dc.DrawBitmap(*_bitmap, 0, 0);
     } else {
