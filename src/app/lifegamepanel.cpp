@@ -5,7 +5,6 @@
 #include <wx/dcbuffer.h>
 #include <wx/rawbmp.h>
 
-#include <iostream>
 #include <cmath>
 
 const wxString TITLE = wxT("Conway's Game of Life");
@@ -20,11 +19,12 @@ LifeGamePanel::LifeGamePanel(wxFrame* parent, int width, int height)
     Bind(wxEVT_IDLE, &LifeGamePanel::OnIdle, this);
     Bind(wxEVT_KEY_UP, &LifeGamePanel::OnKeyUp, this);
 
+    BigBang::init();
     Regenerate(width, height);
 }
 
 void LifeGamePanel::Regenerate(int width, int height) {
-    _u = BigBang::create("CpuAvxUniverse", width, height);
+    _u = BigBang::create("CPU AVX", width, height);
     Refresh();
 }
 

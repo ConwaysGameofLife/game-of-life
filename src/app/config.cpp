@@ -53,4 +53,5 @@ ConfigDialog::ConfigDialog()
     panel->SetSizer(vbox);
     panel->Fit();
     Fit();
+    Center();
 }

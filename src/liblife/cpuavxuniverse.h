@@ -12,7 +12,7 @@ public:
   }
   ~CpuAvxUniverse() final { aligned_free(sum); }
 
-  std::string name() const { return "CPU AVX"; }
+  static std::string name() { return "CPU AVX"; }
 
   void next(int width, int height, uint8_t *src, int srcStride, int srcInc,
             uint8_t *dst, int dstStride, int dstInc) const;
@@ -68,6 +68,3 @@ void CpuAvxUniverse::next(int width, int height, uint8_t *src, int srcStride,
     ui8voru(width - 2, sum, dst_row, dst_row);
   }
 }
-
-BigBangRegister a("CpuAvxUniverse",
-                  [](int w, int h) { return new CpuAvxUniverse(w, h); });

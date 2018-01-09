@@ -4,7 +4,7 @@ SET(src
     bigbang.cpp
     bigbang.h
     cpuavxompuniverse.cpp
-    cpuavxuniverse.cpp
+    cpuavxuniverse.h
     cpuippompuniverse.cpp
     cpuipptbb.cpp
     cpuippuniverse.cpp
@@ -20,4 +20,4 @@ SET(src
     vax.h
 )
 
-ADD_LIBRARY(${PROJECT_NAME} ${src})
+ADD_LIBRARY(${PROJECT_NAME} STATIC ${src})

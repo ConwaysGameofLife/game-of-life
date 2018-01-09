@@ -1,30 +1,39 @@
 #pragma once
 
 #include <functional>
+#include <iostream>
 #include <memory>
 #include <string>
 #include <unordered_map>
 
 #include "iuniverse.h"
+#include "gameconfig.h"
+#include "random.h"
 
 class BigBang {
 public:
-  using factory_t = std::function<IUniverse *(int, int)>;
+  using factory_t = std::function<std::unique_ptr<IUniverse>(int, int)>;
 
   static std::unique_ptr<IUniverse> create(const std::string &name, int width,
                                            int height) {
-    return std::unique_ptr<IUniverse>(factories_[name](width, height));
+    auto u = factories_[name](width, height);
+    for (int i = 0; i < width * height * GameConfig::BORN_RATE; ++i) {
+      int x = Random::next<int>(width - 1);
+      int y = Random::next<int>(height - 1);
+      u->add(x, y);
+    }
+    return u;
   }
-  static void add(const std::string &name, const factory_t &factory) {
-    factories_[name] = factory;
+
+  template <typename T> static void add() {
+    const auto &name = T::name();
+    factories_[name] = [](int w, int h) {
+      return std::unique_ptr<IUniverse>(new T(w, h));
+    };
   }
+
+  static void init();
 
 private:
   static std::unordered_map<std::string, factory_t> factories_;
-};
-
-struct BigBangRegister {
-  BigBangRegister(const std::string &name, const BigBang::factory_t &factory) {
-    BigBang::add(name, factory);
-  }
 };
