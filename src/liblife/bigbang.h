@@ -4,6 +4,7 @@
 #include <memory>
 #include <string>
 #include <unordered_map>
+#include <vector>
 
 #include "iuniverse.h"
 
@@ -14,6 +15,14 @@ public:
   static void init();
   static std::unique_ptr<IUniverse> create(const std::string &name, int width,
                                            int height);
+
+  static std::vector<std::string> names() {
+    std::vector<std::string> all;
+    for (const auto& p: factories_) {
+      all.push_back(p.first);
+    }
+    return all;
+  }
 
   template <typename T> static void add() {
     const auto &name = T::name();

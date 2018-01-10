@@ -36,7 +36,8 @@ ConfigDialog::ConfigDialog()
 
     ++r;
     grid->Add(new wxStaticText(panel, wxID_ANY, wxT("Algorithm")), {r, 0}, wxDefaultSpan, wxALIGN_LEFT);
-    grid->Add(new wxComboBox(panel, wxID_ANY, wxT("CPU AVX256 Single-Threaded")), {r, 1}, {1, 3}, wxEXPAND | wxALIGN_LEFT | wxLEFT, 5);
+    _algCBox = new wxComboBox(panel, wxID_ANY, wxT("CPU AVX256 Single-Threaded"));
+    grid->Add(_algCBox, {r, 1}, {1, 3}, wxEXPAND | wxALIGN_LEFT | wxLEFT, 5);
 
     vbox->Add(grid, 0, wxALL, 10);
 
@@ -54,4 +55,12 @@ ConfigDialog::ConfigDialog()
     panel->Fit();
     Fit();
     Center();
+}
+
+void ConfigDialog::SetAlgorithms(const std::string& current,
+                                 const std::vector<std::string>& algorithms) {
+    _algCBox->SetValue(current);
+    for (size_t i = 0; i < algorithms.size(); ++i) {
+      _algCBox->Append(wxString(algorithms[i].c_str()));
+    }
 }

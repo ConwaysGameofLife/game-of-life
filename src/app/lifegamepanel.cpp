@@ -8,6 +8,7 @@
 #include <cmath>
 
 const wxString TITLE = wxT("Conway's Game of Life");
+const std::string DEFAULT_ALG = "CPU AVX";
 
 LifeGamePanel::LifeGamePanel(wxFrame* parent, int width, int height)
    : wxPanel(parent) {
@@ -158,6 +159,7 @@ void LifeGamePanel::Toggle() {
     } else {
         _state = STOPPED;
         ConfigDialog config;
+        config.SetAlgorithms(DEFAULT_ALG, BigBang::names());
         if (config.ShowModal() != wxID_OK) {
         }
         _state = RUNNING;

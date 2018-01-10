@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <vector>
 
 #include <wx/wx.h>
 
@@ -17,8 +18,13 @@ public:
     int GetSwarmTotal() const { return _swarmTotal; }
     std::string GetAlgorithm() const { return _algorithm; }
 
+    void SetAlgorithms(const std::string& current,
+                       const std::vector<std::string>& algorithms);
+
 private:
     static const wxString TITLE;
+
+    wxComboBox *_algCBox;
 
     int _width;
     int _height;
